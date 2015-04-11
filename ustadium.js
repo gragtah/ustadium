@@ -1,10 +1,38 @@
 var express = require('express');
+var request = require('request');
+var config = require('./config')
+
 var app = express();
 
 // respond with "Hello World!" on the homepage
 app.get('/', function (req, res) {
-  res.send('Hello World!');
+  // res.send('Hello World!');
+  request.get('http://www.google.com',
+   function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      console.log("done") // Show the HTML for the Google homepage.
+      // console.log(config.sports_data.api_key)
+
+      res.send(body)
+      // return res.json(body)
+    }
+  }).auth('api_key_here')
 });
+
+app.get('/foo', function (req, res) {
+  // res.send('Hello World!');
+  request.get('http://www.google.com',
+   function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      console.log("done")//body) // Show the HTML for the Google homepage.
+      res.send(body)
+    }
+  }).auth('api_key_here')
+});
+
+
+
+// ==============================================================
 
 // accept POST request on the homepage
 app.post('/', function (req, res) {
