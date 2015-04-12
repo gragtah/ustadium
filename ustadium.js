@@ -1,8 +1,10 @@
-var express = require('express');
-var request = require('request');
+var express = require('express')
+var request = require('request')
 var config = require('./config')
+var xml2js = require('xml2js')
 
-var app = express();
+var app = express()
+var parser = new xml2js.Parser({ explicitArray: true })
 
 // respond with "Hello World!" on the homepage
 app.get('/', function (req, res) {
@@ -19,9 +21,10 @@ app.get('/', function (req, res) {
   }).auth('api_key_here')
 });
 
-app.get('/foo', function (req, res) {
+
+app.get('/weekly-schedule', function (req, res) {
   // res.send('Hello World!');
-  request.get('http://www.google.com',
+  request.get('http(s)://api.sportsdatallc.org/nfl-t1/2015/[nfl_season]/[nfl_season_week]/schedule.[format]?api_key=' + config.sports_data.api_key,
    function (error, response, body) {
     if (!error && response.statusCode == 200) {
       console.log("done")//body) // Show the HTML for the Google homepage.
@@ -29,7 +32,6 @@ app.get('/foo', function (req, res) {
     }
   }).auth('api_key_here')
 });
-
 
 
 // ==============================================================
