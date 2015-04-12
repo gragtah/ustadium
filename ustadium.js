@@ -1,40 +1,83 @@
 var express = require('express')
 var request = require('request')
 var config = require('./config')
-var xml2js = require('xml2js')
+// var xml2js = require('xml2js')
+var vsprintf = require("sprintf-js").vsprintf
 
 var app = express()
-var parser = new xml2js.Parser({ explicitArray: true })
+// var parser = new xml2js.Parser({ explicitArray: true })
 
-// respond with "Hello World!" on the homepage
+// Root
 app.get('/', function (req, res) {
-  // res.send('Hello World!');
-  request.get('http://www.google.com',
-   function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      console.log("done") // Show the HTML for the Google homepage.
-      // console.log(config.sports_data.api_key)
-
-      res.send(body)
-      // return res.json(body)
-    }
-  }).auth('api_key_here')
+      console.log("done")
+      res.json({status: "ready"})
+  // }).auth(user, pass) if needed
 });
 
+// Season schedule
+// Eg. /weekly-schedule?year=2015&nfl_season=PRE&nfl_season_week=1
+app.get('/season-schedule', function (req, res) {
+  var q = req.query
 
+  var uri = vsprintf("http://api.sportsdatallc.org/nfl-t1/%s/%s/schedule.json?api_key=%s",
+  	[q.year, q.nfl_season, config.sports_data.api_key])
+
+  request.get(uri,
+   function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      res.send (JSON.parse(body))
+    }
+  })
+});
+
+// Weekly schedule
+// Eg. /weekly-schedule?year=2015&nfl_season=PRE&nfl_season_week=1
 app.get('/weekly-schedule', function (req, res) {
-  // res.send('Hello World!');
-  request.get('http(s)://api.sportsdatallc.org/nfl-t1/2015/[nfl_season]/[nfl_season_week]/schedule.[format]?api_key=' + config.sports_data.api_key,
+  var q = req.query
+
+  var uri = vsprintf("http://api.sportsdatallc.org/nfl-t1/%s/%s/%s/schedule.json?api_key=%s",
+  	[q.year, q.nfl_season, q.nfl_season_week, config.sports_data.api_key])
+
+  request.get(uri,
    function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      console.log("done")//body) // Show the HTML for the Google homepage.
-      res.send(body)
+      res.send (JSON.parse(body))
     }
-  }).auth('api_key_here')
+  })
 });
 
+// Game roster
+// Eg. /game-roster?year=2014&nfl_season=PRE&nfl_season_week=0&away_team=NYG&home_team=BUF
+app.get('/game-roster', function (req, res) {
+  var q = req.query
 
-// ==============================================================
+  var uri = vsprintf("http://api.sportsdatallc.org/nfl-t1/%s/%s/%s/%s/%s/roster.json?api_key=%s",
+  	[q.year, q.nfl_season, q.nfl_season_week, q.away_team, q.home_team, config.sports_data.api_key])
+
+  request.get(uri,
+   function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      res.send (JSON.parse(body))
+    }
+  })
+});
+
+// Injuries
+// Eg. /injuries?year=2014&nfl_season=PRE&nfl_season_week=0&away_team=NYG&home_team=BUF
+app.get('/injuries', function (req, res) {
+  var q = req.query
+
+  var uri = vsprintf("http://api.sportsdatallc.org/nfl-t1/%s/%s/%s/%s/%s/injuries.json?api_key=%s",
+  	[q.year, q.nfl_season, q.nfl_season_week, q.away_team, q.home_team, config.sports_data.api_key])
+
+  request.get(uri,
+   function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      res.send (JSON.parse(body))
+    }
+  })
+});
+
 
 // accept POST request on the homepage
 app.post('/', function (req, res) {
@@ -56,6 +99,6 @@ var server = app.listen(3000, function () {
   var host = server.address().address;
   var port = server.address().port;
 
-  console.log('Example app listening at http://%s:%s', host, port);
+  console.log('ustadium listening at http://%s:%s', host, port);
 
 });
